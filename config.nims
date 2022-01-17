@@ -1,0 +1,2 @@
+switch("outdir", "build/bin/")
+
