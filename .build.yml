@@ -1,5 +1,6 @@
 image: alpine/edge
-packages: nim
+packages:
+    - nim
 tasks:
     - build: |
         nim c -d:release src/reshape.nim
