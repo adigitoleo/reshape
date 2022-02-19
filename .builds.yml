@@ -1,0 +1,7 @@
+image: alpine/edge
+packages: nim
+tasks:
+    - build: |
+        nim c -d:release src/reshape.nim
+    - test: |
+        nimble test
