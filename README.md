@@ -59,6 +59,8 @@ Debug build: `nim c src/reshape.nim`
 
 Run `nimble test` in the source code root directory.
 
+Linux CI (dev branch): [![builds.sr.ht status](https://builds.sr.ht/~adigitoleo/reshape.svg)](https://builds.sr.ht/~adigitoleo/reshape?)
+
 ## Use
 
 Run with the `--help` option if built, or check the `printHelp` proc in the code.
