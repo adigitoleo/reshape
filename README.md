@@ -45,13 +45,19 @@ printf '%s\n%s\n%s\n' ',a,b,c,d' ',1,2,3,4' ',",",,ß'|reshape -d, -c1 -s3x4
 ",", ,ß,
 ```
 
+## Install
+
+After building the `reshape` binary, put it in one of your `$PATH` directories.
+
 ## Build
 
-`nim c src/reshape.nim`
+Release build: `nim c -d:release src/reshape.nim`
+
+Debug build: `nim c src/reshape.nim`
 
 ## Test
 
-`nimble test`
+Run `nimble test` in the source code root directory.
 
 ## Use
 
