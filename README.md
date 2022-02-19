@@ -9,39 +9,41 @@ Note that the whole input is read into memory at once for processing.
 
 ## Examples
 
-In:
+Transpose:
 
 ```sh
-reshape -d, -t -
-a,b,c^D
-```
-
-Out:
-
-```
+printf 'a,b,c'|reshape -d, -t -
 a
 b
 c
 ```
 
-In:
+Reshape:
 
 ```sh
-reshape -d, -c1 -s3x4
-,a,b,c,d
-,1,2,3,4
-,",",,ß^D
+printf '%s\n%s\n' 'a,b,c' '1,2,3'|reshape -d, -s3x2 -
+a,b
+c,1
+2,3
 ```
 
-Out:
+Output is right-aligned by default (use `-p` or `--nopad` to disable):
 
+```sh
+printf '%s\n%s\n%s\n' 'a,b,c' '1,2,3' 'foo,bar,baz'|reshape -d, -
+  a,  b,  c
+  1,  2,  3
+foo,bar,baz
 ```
+
+Note that unicode symbols are currently not aligned properly:
+
+```sh
+printf '%s\n%s\n%s\n' ',a,b,c,d' ',1,2,3,4' ',",",,ß'|reshape -d, -c1 -s3x4
   a,b, c,d
   1,2, 3,4
 ",", ,ß,
 ```
-
-Note that unicode symbols are currently not aligned properly.
 
 ## Build
 
