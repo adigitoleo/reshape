@@ -1,8 +1,11 @@
 image: alpine/edge
 packages:
     - nim
+    - nimble
 tasks:
     - build: |
+        cd reshape
         nim c -d:release src/reshape.nim
     - test: |
+        cd reshape
         nimble test
