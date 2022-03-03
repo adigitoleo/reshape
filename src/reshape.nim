@@ -198,18 +198,12 @@ proc readTable*(input: Stream, delimiter: char, skipRows, skipCols: seq[int] = @
     seq[seq[string]] =
     ## Reads delimited tabular data from `input` and returns a sequence of rows.
     ## Rows are sequences of cells (strings). Quoted delimiters are skipped.
-    ## Raises a `ValueError` if the quote character `"` is used as a delimiter,
-    ## or either `skipRows` or `skipCols` contain negative values.
+    ## Raises a `ValueError` if the quote character `"` is used as a delimiter.
     ## Raises an `IOError` if no data can be read from the `input` stream.
     ## Quietly propagates empty cells. Empty cells are also created to complete
     ## malformed rows of the table. They are added to the right of existing cells.
     ## `skipRows` and `skipCols` can be used to exclude the specified rows/columns.
     ## This is done after filling out malformed rows. Rows/columns are zero-indexed.
-    if any(skipRows, proc(x: int): bool = x < 0) or
-        any(skipCols, proc(x: int): bool = x < 0):
-            raise newException(
-                ValueError, "indices for skipped rows/columns must be non-negative"
-            )
     if atEnd(input): raise newException(IOError, "input stream must not be exhausted")
 
     let uniqueSkipCols = deduplicate(sorted(skipCols), isSorted = true)
@@ -333,12 +327,30 @@ func validateShape(key: string, val: string): Shape =
 
 
 func validateSkips(key: string, val: string): seq[int] =
-    var s = validate(key, val).split(',').map(parseInt)
-    if any(s, proc(x: int): bool = x < 1):
+    var input = validate(key, val).split(',')
+    var parsedInput: seq[int]
+    for s in input:
+        let dashPos = s.find({'-'})
+        if dashPos == 0:
+            raise newException(
+                ArgumentError, "indices for skipped rows/columns must be positive"
+            )
+        elif dashPos == len(s) - 1:
+            raise newException(ArgumentError, "must include endpoint of skipped range")
+        elif dashPos > 0:
+            let start = parseInt(s[0 ..< dashPos])
+            let stop = parseInt(s[dashPos + 1 .. ^1])
+            if start > stop:
+                raise newException(ArgumentError, "range endpoints must obey a < b")
+            else:
+                parsedInput.insert(toSeq(start .. stop))
+        else:
+            parsedInput.add(parseInt(s))
+    if any(parsedInput, proc(x: int): bool = x < 1):
         raise newException(
             ArgumentError, "indices for skipped rows/columns must be positive"
         )
-    return s.map(proc(x: int): int = x - 1)
+    return parsedInput.map(proc(x: int): int = x - 1)
 
 
 proc parseOpts*(cmdline = ""): Opts =
