@@ -256,30 +256,6 @@ suite "Row and column skipping":
 
         close input
 
-    test "tabTable3x3 errors":
-        let input = newStringStream(tabTable3x3)
-        expect IndexDefect: discard readTable(input, '\t', skipRows = @[0, 1, 5])
-        input.setPosition(0)
-        expect ValueError: discard readTable(input, '\t', skipCols = @[0, 1, -5])
-
-        close input
-
-    test "malformedCommaTable2x3 errors":
-        let input = newStringStream(malformedCommaTable2x3)
-        expect ValueError: discard readTable(input, ',', skipRows = @[-1])
-        input.setPosition(0)
-        expect ValueError: discard readTable(input, ',', skipCOls = @[-1])
-
-        close input
-
-    test "malformedSpaceTable4x4 errors":
-        let input = newStringStream(malformedSpaceTable4x4)
-        expect IndexDefect: discard readTable(input, ' ', skipRows = @[4])
-        input.setPosition(0)
-        expect IndexDefect: discard readTable(input, ' ', skipCols = @[4])
-
-        close input
-
 
 suite "Transpose":
     test "tabTable3x3":
