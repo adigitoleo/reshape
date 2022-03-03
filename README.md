@@ -12,7 +12,7 @@ Note that the whole input is read into memory at once for processing.
 Transpose:
 
 ```sh
-printf 'a,b,c'|reshape -d, -t -
+printf 'a,b,c'|reshape -d, -t
 a
 b
 c
@@ -21,7 +21,7 @@ c
 Reshape:
 
 ```sh
-printf '%s\n%s\n' 'a,b,c' '1,2,3'|reshape -d, -s3x2 -
+printf '%s\n%s\n' 'a,b,c' '1,2,3'|reshape -d, -s3x2
 a,b
 c,1
 2,3
@@ -30,10 +30,18 @@ c,1
 Output is right-aligned by default (use `-p` or `--nopad` to disable):
 
 ```sh
-printf '%s\n%s\n%s\n' 'a,b,c' '1,2,3' 'foo,bar,baz'|reshape -d, -
+printf '%s\n%s\n%s\n' 'a,b,c' '1,2,3' 'foo,bar,baz'|reshape -d,
   a,  b,  c
   1,  2,  3
 foo,bar,baz
+```
+
+Skip individual rows/columns or ranges:
+
+```sh
+printf '%s\n%s\n%s\n' 'a,b,c' '1,2,3' 'foo,bar,baz'|reshape -d, -r:1 -c:1-2
+  3
+baz
 ```
 
 Note that unicode symbols are currently not aligned properly:
@@ -76,9 +84,6 @@ This behaviour is inherited from Nim's [parseopt][parseopt] module.
 
 ## TODO
 
-- Support negative values in `--skiprows` and `--skipcols`
-  for row/column indices counted backwards from the last row/column.
-- Support a range syntax for `--skiprows` and `--skipcols`
 - Fix cell padding for tables with unicode characters.
 
 [parseopt]: https://nim-lang.org/docs/parseopt.html
