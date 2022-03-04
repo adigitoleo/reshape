@@ -85,5 +85,7 @@ This behaviour is inherited from Nim's [parseopt][parseopt] module.
 ## TODO
 
 - Fix cell padding for tables with unicode characters.
+- More high-level tests (test examples from readme?)
+- manual page
 
 [parseopt]: https://nim-lang.org/docs/parseopt.html
