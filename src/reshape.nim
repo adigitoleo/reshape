@@ -335,15 +335,27 @@ func validateSkips(key: string, val: string): seq[int] =
             raise newException(
                 ArgumentError, "indices for skipped rows/columns must be positive"
             )
-        elif dashPos == len(s) - 1:
+        if dashPos == len(s) - 1:
             raise newException(ArgumentError, "must include endpoint of skipped range")
-        elif dashPos > 0:
+        if dashPos > 0:
             let start = parseInt(s[0 ..< dashPos])
-            let stop = parseInt(s[dashPos + 1 .. ^1])
+            let stepDashPos = s.find({'-'}, dashPos + 2)
+            var step, stop: int
+            if stepDashPos == len(s) - 1:
+                raise newException(
+                    ArgumentError, "must include endpoint of skipped range"
+                )
+            if stepDashPos > 0:
+                step = parseInt(s[dashPos + 1 ..< stepDashPos])
+                stop = parseInt(s[stepDashPos + 1 .. ^1])
+            else:
+                step = 1
+                stop = parseInt(s[dashPos + 1 .. ^1])
             if start > stop:
                 raise newException(ArgumentError, "range endpoints must obey a < b")
-            else:
-                parsedInput.insert(toSeq(start .. stop))
+            if step < 1:
+                raise newException(ArgumentError, "range step must be positive")
+            parsedInput.insert(toSeq(countup(start, stop, step)))
         else:
             parsedInput.add(parseInt(s))
     if any(parsedInput, proc(x: int): bool = x < 1):

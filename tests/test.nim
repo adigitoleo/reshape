@@ -71,6 +71,13 @@ suite "Command line parsing":
         expect ArgumentError: discard parseOpts("-c:0")
         expect ArgumentError: discard parseOpts("-c:-1-1")
         expect ArgumentError: discard parseOpts("-c:1--1")
+        check parseOpts("-c:1-1-5").skipCols == @[0, 1, 2, 3, 4]
+        check parseOpts("-c:1-2-10").skipCols == @[0, 2, 4, 6, 8]
+        check parseOpts("-c:1-1-1").skipCols == @[0]
+        check parseOpts("-c:1-5-3").skipCols == @[0]
+        expect ArgumentError: discard parseOpts("-c:1--1-1")
+        expect ArgumentError: discard parseOpts("-c:1-1--1")
+        expect ArgumentError: discard parseOpts("-c:1-1-")
     test "skiprows":
         check emptyOpts.skipRows == newSeq[int]()
         expect ArgumentError: discard parseOpts("-r")
@@ -85,6 +92,13 @@ suite "Command line parsing":
         expect ArgumentError: discard parseOpts("-r:0")
         expect ArgumentError: discard parseOpts("-r:-1-1")
         expect ArgumentError: discard parseOpts("-r:1--1")
+        check parseOpts("-r:1-1-5").skipRows == @[0, 1, 2, 3, 4]
+        check parseOpts("-r:1-2-10").skipRows == @[0, 2, 4, 6, 8]
+        check parseOpts("-r:1-1-1").skipRows == @[0]
+        check parseOpts("-r:1-5-3").skipRows == @[0]
+        expect ArgumentError: discard parseOpts("-r:1--1-1")
+        expect ArgumentError: discard parseOpts("-r:1-1--1")
+        expect ArgumentError: discard parseOpts("-r:1-1-")
 
 
 suite "Table shape parsing":
