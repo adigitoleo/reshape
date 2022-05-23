@@ -46,7 +46,7 @@ The default delimiter is a tab, i.e. `\t`. Reshaping with --shape is always
 applied after --skip{rows,cols} and --transpose. For short options,
 option arguments must be separated from the flag by a colon or equals sign,
 e.g. `-d:,`. Multi-byte delimiters such as unicode characters are not supported.
-Tab and space delimiters can be specified with -d:'\t' and -d:'\ ' respectively.
+Tab and space delimiters can be specified with -d:'\t' and -d:'\s' respectively.
 Empty columns are propagated without warning."""
     quit(QuitSuccess)
 
@@ -300,7 +300,7 @@ proc validate(key, val: string): string =
     var parsedVal: string
     if len(val) == 2 and val[0] == '\\':
         if val[1] == 't': parsedVal = "\t"
-        elif val[1] == ' ': parsedVal = " "
+        elif val[1] == ' ' or val[1] == 's': parsedVal = " "
     else: parsedVal = val
     if parsedVal == "":
         raise newException(ArgumentError, "option {key} requires an argument".fmt)
