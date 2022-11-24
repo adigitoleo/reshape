@@ -230,6 +230,15 @@ suite "Cell padding":
 
         close input
 
+    test "empty table (no op)":
+        let input = newStringStream("a, b, c")
+        var table = readTable(input, ',', skipRows = @[0])
+        require table == newSeq[seq[string]]()
+        padCells(table)
+        check table == newSeq[seq[string]]()
+
+        close input
+
 
 suite "Row and column skipping":
     test "tabTable3x3":

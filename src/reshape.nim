@@ -279,6 +279,7 @@ func reshape*(table: seq[seq[string]], newShape: Shape): seq[seq[string]] =
 proc padCells*(table: var seq[seq[string]]) =
     ## Pads cells in-place with whitespace to right-align tabular columns.
     ## Raises a `ValueError` if the rows don't all contain the same amount of cells.
+    if len(table) == 0: return
     var cellSizes = newSeq[int](len(table[0]))
     for row in table:
         if len(row) != len(cellSizes):
