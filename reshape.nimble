@@ -1,6 +1,6 @@
 import strformat
 
-version = "0.3.1"
+version = "0.4.0"
 author = "adigitoleo"
 description = "Reshape a delimited text file"
 license = "0BSD"
