@@ -205,9 +205,7 @@ suite "Cell padding":
         var table = readTable(input, ',')
         check table == @[@["ä", "¿", "©"], @["1\", \"2", "3\"", ""]]
         padCells(table)
-        # Unicode characters create weird cell sizes, because they have len(char) == 2.
-        # Could handle this by using Runes <https://nim-lang.org/docs/unicode.html>?
-        check table == @[@["    ä", "¿", "©"], @["1\", \"2", "3\"", "  "]]
+        check table == @[@["     ä", " ¿", "©"], @["1\", \"2", "3\"", " "]]
 
         close input
 

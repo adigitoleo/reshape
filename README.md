@@ -51,12 +51,12 @@ printf '%s\n%s\n%s\n' 'a,b,c' '1,2,3' 'foo,bar,baz'|reshape -d, -r:1 -c:1-2
 baz
 ```
 
-Note that unicode symbols are currently not aligned properly:
+Unicode symbols are aligned properly:
 
 ```sh
 printf '%s\n%s\n%s\n' ',a,b,c,d' ',1,2,3,4' ',",",,ß'|reshape -d, -c1 -s3x4
-  a,b, c,d
-  1,2, 3,4
+  a,b,c,d
+  1,2,3,4
 ",", ,ß,
 ```
 
@@ -91,7 +91,6 @@ This behaviour is inherited from Nim's [parseopt][parseopt] module.
 
 ## TODO
 
-- Fix cell padding for tables with unicode characters.
 - More high-level tests (test examples from readme?)
 - manual page
 

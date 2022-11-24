@@ -7,6 +7,7 @@ import streams
 import strformat
 import strutils
 import typetraits
+from unicode import toRunes, align
 
 const NimblePkgVersion {.strdefine.} = "Unknown"
 const version = NimblePkgVersion
@@ -285,12 +286,12 @@ proc padCells*(table: var seq[seq[string]]) =
         if len(row) != len(cellSizes):
             raise newException(ValueError, "must provide rows of equal length")
         for i, cell in row.pairs:
-            var cellSize = len(cell)
+            var cellSize = len(toRunes(cell))
             if cellSize > cellSizes[i]:
                 cellSizes[i] = cellSize
     for row in table.mitems:
         for i, cell in row.mpairs:
-            cell = align(cell, cellSizes[i])
+            cell = unicode.align(cell, cellSizes[i])
 
 
 proc printInfo(input: Stream, delimiter: char) =
