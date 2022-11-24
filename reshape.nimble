@@ -28,7 +28,7 @@ task release, "Create release commit and tag":
         quit(1)
     echo "Checking git status..."
     try:
-        exec "test \"$(git status --porcelain)\" = ' M {name}.nimble'".fmt
+        exec "test \"$(git status --porcelain)\" = 'M  {name}.nimble'".fmt
     except OSError:
         echo "Aborted: should (only) have modified nimble file."
         quit(1)
