@@ -1,6 +1,6 @@
-version = "0.2.0"
+version = "0.3.0"
 author = "adigitoleo"
-description = "Reshape a data array"
+description = "Reshape a delimited text file"
 license = "0BSD"
 
 requires "nim >= 1.4.8"
