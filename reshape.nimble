@@ -1,4 +1,4 @@
-version = "0.3.0"
+version = "0.3.1"
 author = "adigitoleo"
 description = "Reshape a delimited text file"
 license = "0BSD"
