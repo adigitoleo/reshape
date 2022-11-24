@@ -1,4 +1,5 @@
 import logging
+import sequtils
 import streams
 import strformat
 import strutils
@@ -39,6 +40,9 @@ suite "Command line parsing":
     test "transpose":
         check emptyOpts.transpose == false
         check parseOpts("-t").transpose == true
+    test "unique":
+        check emptyOpts.deduplicate == false
+        check parseOpts("-u").deduplicate == true
     test "out":
         check emptyOpts.outputFile == ""
         expect ArgumentError: discard parseOpts("-o")
@@ -339,7 +343,7 @@ suite "Transpose":
         expect IndexDefect: discard transpose(@[@["a", "b"], @["1", "2", "3"]])
 
 
-suite "reshape":
+suite "Reshape":
     test "tabTable3x3":
         let input = newStringStream(tabTable3x3)
         let table = readTable(input, '\t')
@@ -401,3 +405,26 @@ suite "reshape":
         expect IndexDefect: discard reshape(
             @[@["a", "b", "c"], @["1", "2", "3", "4"]], (rows: 3, cols: 2)
         )
+
+
+suite "Deduplicate":
+    test "tabTable3x3":
+        let input = newStringStream(tabTable3x3)
+        let table = readTable(input, '\t')
+        check deduplicate(table) == table
+
+        close input
+
+    test "malformedCommaTable101x3":
+        let input = newStringStream(malformedCommaTable101x3)
+        let table = readTable(input, ',')
+        check deduplicate(table) == @[@["a", "b", "c"], @["foo", "", ""]]
+
+        close input
+
+    test "malformedCommaTable102x3":
+        let input = newStringStream(malformedCommaTable102x3)
+        let table = readTable(input, ',')
+        check deduplicate(table) == @[@["a", "b", "c"], @["foo", "", ""]]
+
+        close input

@@ -22,7 +22,7 @@ proc printHelp() =
     echo """
 Usage: reshape [-h|-v][--help|--version]
        reshape [-i] TABLE
-       reshape [-p][-t]
+       reshape [-p][-t][-u]
                [-d:delim][-c:c1,c2,...][-r:r1,r2,...][-o:file][-s:RxC] TABLE
 
 Options:
@@ -30,10 +30,11 @@ Options:
 -i,--info               print diagnostic information for TABLE
 -p,--nopad              don't pad output cells with leading whitespace
 -t,--transpose          transpose TABLE, swap meaning of "rows" and "columns"
+-u,--unique             deduplicate rows in TABLE, after --skip{cols,rows}
 -d,--delim <delim>      split input lines at each occurance of <delim>
 -s,--shape <RxC>        reshape TABLE into R rows and C columns, applied last
--c,--skipcols <c1,...>  skip columns <c1,...> in TABLE
--r,--skiprows <r1,...>  skip rows <r1,...> in TABLE
+-c,--skipcols <c1,...>  skip columns <c1,...> in TABLE; use a dash for ranges
+-r,--skiprows <r1,...>  skip rows <r1,...> in TABLE; use a dash for ranges
 -o,--out <file>         write output to <file>
 
 Operands:
@@ -43,7 +44,7 @@ Operands:
 Reshape TABLE, or print diagnostic metadata. When using --transpose,
 "rows" and "columns" for other options refer to the table before transposing.
 The default delimiter is a tab, i.e. `\t`. Reshaping with --shape is always
-applied after --skip{rows,cols} and --transpose. For short options,
+applied after --skip{rows,cols}, --unique and --transpose. For short options,
 option arguments must be separated from the flag by a colon or equals sign,
 e.g. `-d:,`. Multi-byte delimiters such as unicode characters are not supported.
 Tab and space delimiters can be specified with -d:'\t' and -d:'\s' respectively.
@@ -58,6 +59,7 @@ type Opts = tuple[
     info: bool,
     pretty: bool,
     transpose: bool,
+    deduplicate: bool,
     delimiter: char,
     newShape: Shape,
     skipCols: seq[int],
@@ -370,13 +372,14 @@ proc parseOpts*(cmdline = ""): Opts =
     ## Raises an `ArgumentError` on illegal combinations or argument values.
     var parser = initOptParser(
         cmdline,
-        shortNoVal = {'h' ,'v', 'i', 'p', 't'},
-        longNoVal = @["help", "version", "info", "nopad", "transpose"],
+        shortNoVal = {'h' ,'v', 'i', 'p', 't', 'u'},
+        longNoVal = @["help", "version", "info", "nopad", "transpose", "unique"],
     )
     # Set defaults.
     var opts: Opts
     opts.pretty = true
     opts.transpose = false
+    opts.deduplicate = false
     opts.delimiter = '\t'
 
     for kind, key, val in getopt(parser):
@@ -389,6 +392,7 @@ proc parseOpts*(cmdline = ""): Opts =
                 of "info", "i": opts.info = true
                 of "nopad", "p": opts.pretty = false
                 of "transpose", "t": opts.transpose = true
+                of "unique", "u": opts.deduplicate = true
                 # Process options with arguments.
                 of "out", "o": opts.outputFile = validate(key, val)
                 of "delim", "d": opts.delimiter = validateChar(key, val)
@@ -417,7 +421,8 @@ proc main() =
     )
     close input
 
-    var newTable = if opts.transpose: transpose(table) else: table
+    var newTable = if opts.deduplicate: deduplicate(table) else: table
+    newTable = if opts.transpose: transpose(newTable) else: newTable
     if opts.newShape.rows > 0 and opts.newShape.cols > 0:
         newTable = reshape(newTable, opts.newShape)
     if opts.pretty:

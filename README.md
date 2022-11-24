@@ -27,6 +27,13 @@ c,1
 2,3
 ```
 
+Deduplicate:
+
+```sh
+printf '%s\n%s\n' 'a,b,c' 'a,b,c'|reshape -d, -u
+a,b,c
+```
+
 Output is right-aligned by default (use `-p` or `--nopad` to disable):
 
 ```sh
