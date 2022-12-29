@@ -401,6 +401,11 @@ proc parseOpts*(cmdline = ""): Opts =
                 of "shape", "s": opts.newShape = validateShape(key, val)
                 of "skipcols", "c": opts.skipCols = validateSkips(key, val)
                 of "skiprows", "r": opts.skipRows = validateSkips(key, val)
+                else:
+                    if kind == cmdLongOption:
+                        raise newException(ArgumentError, "invalid option '--{key}'".fmt)
+                    elif kind == cmdShortOption:
+                        raise newException(ArgumentError, "invalid option '-{key}'".fmt)
         of cmdArgument: opts.inputFile = key
         of cmdEnd: assert(false)
     return opts
