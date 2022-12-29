@@ -1,6 +1,6 @@
 import strformat
 
-version = "0.4.0"
+version = "0.4.1"
 author = "adigitoleo"
 description = "Reshape a delimited text file"
 license = "0BSD"
@@ -30,7 +30,7 @@ task release, "Create release commit and tag":
     try:
         exec "test \"$(git status --porcelain)\" = 'M  {name}.nimble'".fmt
     except OSError:
-        echo "Aborted: should (only) have modified nimble file."
+        echo "Aborted: should (only) have modified (and commited) nimble file."
         quit(1)
     echo "Creating release commit..."
     exec "git commit -m'release: Version {version}'".fmt
