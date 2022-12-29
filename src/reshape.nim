@@ -180,7 +180,7 @@ proc readShape*(
     return (rowCount, colCount)
 
 
-func toSlices(s:seq[int]): seq[Slice[int]] =
+func toSlices(s: seq[int]): seq[Slice[int]] =
     ## Condenses a sequence of integers to a sequence of slices.
     ## Raises a `ValueError` if `s` is not sorted.
     if not isSorted(s): raise newException(ValueError, "sequence must be sorted")
@@ -374,7 +374,7 @@ proc parseOpts*(cmdline = ""): Opts =
     ## Raises an `ArgumentError` on illegal combinations or argument values.
     var parser = initOptParser(
         cmdline,
-        shortNoVal = {'h' ,'v', 'i', 'p', 't', 'u'},
+        shortNoVal = {'h', 'v', 'i', 'p', 't', 'u'},
         longNoVal = @["help", "version", "info", "nopad", "transpose", "unique"],
     )
     # Set defaults.
