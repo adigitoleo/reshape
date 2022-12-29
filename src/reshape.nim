@@ -31,25 +31,25 @@ Options:
 -i,--info               print diagnostic information for TABLE
 -p,--nopad              don't pad output cells with leading whitespace
 -t,--transpose          transpose TABLE, swap meaning of "rows" and "columns"
--u,--unique             deduplicate rows in TABLE, after --skip{cols,rows}
+-u,--unique             deduplicate rows in TABLE, after `--skip{cols,rows}`
 -d,--delim <delim>      split input lines at each occurance of <delim>
 -s,--shape <RxC>        reshape TABLE into R rows and C columns, applied last
 -c,--skipcols <c1,...>  skip columns <c1,...> in TABLE; use a dash for ranges
 -r,--skiprows <r1,...>  skip rows <r1,...> in TABLE; use a dash for ranges
--o,--out <file>         write output to <file>
+-o,--out <file>         write output to <file> instead of standard output
 
 Operands:
     TABLE               File path or input stream
                         containing tabular input data
 
-Reshape TABLE, or print diagnostic metadata. When using --transpose,
+Reshape and transform delimited tabular text. When using `--transpose`,
 "rows" and "columns" for other options refer to the table before transposing.
-The default delimiter is a tab, i.e. `\t`. Reshaping with --shape is always
-applied after --skip{rows,cols}, --unique and --transpose. For short options,
+The default delimiter is a tab, i.e. `\t`. Reshaping with `--shape` is always
+applied after `--skip{rows,cols}`, `--unique` and `--transpose`. For short options,
 option arguments must be separated from the flag by a colon or equals sign,
 e.g. `-d:,`. Multi-byte delimiters such as unicode characters are not supported.
-Tab and space delimiters can be specified with -d:'\t' and -d:'\s' respectively.
-Empty columns are propagated without warning."""
+Tab and space delimiters can be specified with `-d:'\t'` and `-d:'\s'` respectively.
+Empty columns are propagated without warning. See reshape(1) for examples."""
     quit(QuitSuccess)
 
 

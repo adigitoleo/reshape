@@ -7,62 +7,24 @@ Reads from `stdin` stream (e.g. unix pipe) otherwise, until terminated by an EOF
 A filename argument of `-` can also be used to switch to `stdin` input.
 Note that the whole input is read into memory at once for processing.
 
-## Examples
+## Features
 
-Transpose:
+This utility can process tabular data by
+- transposing rows with columns
+- reshaping the data, e.g. turning a 4x4 table into a 8x2 table,
+- skipping selected rows/columns (individual or ranges),
+- deduplicating repeated rows,
+- padding cells to right-align table columns,
+- and printing information about input tables (e.g. number of rows/columns, number of malformed rows)
 
-```sh
-printf 'a,b,c'|reshape -d, -t
-a
-b
-c
-```
-
-Reshape:
-
-```sh
-printf '%s\n%s\n' 'a,b,c' '1,2,3'|reshape -d, -s3x2
-a,b
-c,1
-2,3
-```
-
-Deduplicate:
-
-```sh
-printf '%s\n%s\n' 'a,b,c' 'a,b,c'|reshape -d, -u
-a,b,c
-```
-
-Output is right-aligned by default (use `-p` or `--nopad` to disable):
-
-```sh
-printf '%s\n%s\n%s\n' 'a,b,c' '1,2,3' 'foo,bar,baz'|reshape -d,
-  a,  b,  c
-  1,  2,  3
-foo,bar,baz
-```
-
-Skip individual rows/columns or ranges:
-
-```sh
-printf '%s\n%s\n%s\n' 'a,b,c' '1,2,3' 'foo,bar,baz'|reshape -d, -r:1 -c:1-2
-  3
-baz
-```
-
-Unicode symbols are aligned properly:
-
-```sh
-printf '%s\n%s\n%s\n' ',a,b,c,d' ',1,2,3,4' ',",",,ß'|reshape -d, -c1 -s3x4
-  a,b,c,d
-  1,2,3,4
-",", ,ß,
-```
+For some usage examples, refer to the [manual page](./doc/reshape.1.mdoc).
+If you have [installed](#Install) `reshape`, you should be able to read it from `man reshape`.
+Otherwise the manual page source can be rendered on most Unix systems using `man -l /path/to/reshape.1.mdoc`.
 
 ## Install
 
 After building the `reshape` binary, put it in one of your `$PATH` directories.
+The manual page in the `doc` folder should also be copied into the appropriate manual page folder for your system.
 
 ## Build
 
@@ -91,7 +53,7 @@ This behaviour is inherited from Nim's [parseopt][parseopt] module.
 
 ## TODO
 
-- More high-level tests (test examples from readme?)
-- manual page
+- More high-level tests (test examples from manual page?)
+- extract/generate help proc text from the mdoc source?
 
 [parseopt]: https://nim-lang.org/docs/parseopt.html

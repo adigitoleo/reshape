@@ -1,0 +1,138 @@
+.Dd December 29, 2022
+.Dt RESHAPE 1
+.Os x86_64
+
+.Sh NAME
+.Nm reshape
+.Nd reshape and transform delimited tabular text
+
+.Sh SYNOPSIS
+.Nm reshape
+.Op Fl h
+.Op Fl v
+.Op Fl i
+.Op Fl ptu
+.Op Fl d Ns = Ns Ar delim
+.Op Fl c Ns = Ns Ar c1,c2,...
+.Op Fl r Ns = Ns Ar r1,r2,...
+.Op Fl o Ns = Ns Ar file
+.Op Fl s Ns = Ns Ar RxC
+.Ar TABLE
+
+.Sh DESCRIPTION
+The
+.Nm reshape
+utility reads input from a file (or the standard input stream if the filename is `-` or absent)
+and pads, transposes or reshapes tabular text, skipping blacklisted rows and columns.
+Duplicate rows may also be removed after the initial processing.
+See the
+.Em EXAMPLES
+section below for some simple usage demonstrations.
+
+.Sh OPTIONS
+.Bl -tag
+.It Fl h, -help
+print help synopsis
+.It Fl v, -version
+print version information
+.It Fl p, -nopad
+don't pad output cells with leading whitespace
+.It Fl t, -transpose
+transpose TABLE, swap meaning of "rows" and "columns"
+.It Fl u, -unique
+deduplicate rows in TABLE, after `--skip{cols,rows}`
+.It Fl d, -delim Ar <delim>
+split input lines at each occurance of <delim>
+.It Fl s, -shape Ar <RxC>
+reshape TABLE into R rows and C columns, applied last
+.It Fl c, -skipcols Ar <c1,...>
+skip columns <c1,...> in TABLE; use a dash for ranges
+.It Fl r, -skiprows Ar <r1,...>
+skip rows <r1,...> in TABLE; use a dash for ranges
+.It Fl o, -out Ar <file>
+write output to <file> instead of standard output
+.El
+
+When using `--transpose`, "rows" and "columns" for other options refer to the table before transposing.
+The default delimiter is a tab, i.e. `\\t`. Reshaping with `--shape` is always
+applied after `--skip{rows,cols}`, `--unique` and `--transpose`. For short options,
+option arguments must be separated from the flag by a colon or equals sign,
+e.g. `-d:,`. Multi-byte delimiters such as unicode characters are not supported.
+Tab and space delimiters can be specified with `-d:'\\t'` and `-d:'\\s'` respectively.
+Empty columns are propagated without warning.
+
+.Sh EXIT STATUS
+.Bl -column number description
+.It Sy 0 Ta Successful operation, including printing help.
+.It Sy 1 Ta Any failure, e.g. invalid option or argument value, invalid output shape, empty input stream, etc.
+.El
+
+When input is not being read from a file,
+the input stream will be blocked until the first EOF signal.
+The ^D (Ctrl-D) shortcut can normally be used
+to abort an input stream coming from the standard input.
+
+.Sh EXAMPLES
+
+.Ss Transpose:
+.Bd -literal -compact
+printf 'a,b,c'|reshape -d, -t
+.Bd -literal -offset indent
+a
+b
+c
+.Ed
+.Ed
+
+.Ss Reshape:
+.Bd -literal -compact
+printf '%s\\n%s\\n' 'a,b,c' '1,2,3'|reshape -d, -s3x2
+.Bd -literal -offset indent
+a,b
+c,1
+2,3
+.Ed
+.Ed
+
+.Ss Deduplicate rows:
+.Bd -literal -compact
+printf '%s\\n%s\\n' 'a,b,c' 'a,b,c'|reshape -d, -u
+.Bd -literal -offset indent
+a,b,c
+.Ed
+.Ed
+
+.Ss Right-align columns (default):
+.Bd -literal -compact
+printf '%s\\n%s\\n%s\\n' 'a,b,c' '1,2,3' 'foo,bar,baz'|reshape -d,
+.Bd -literal -offset indent
+  a,  b,  c
+  1,  2,  3
+foo,bar,baz
+.Ed
+.Ed
+
+.Ss Skip individual rows/columns or ranges:
+.Bd -literal -compact
+printf '%s\\n%s\\n%s\\n' 'a,b,c' '1,2,3' 'foo,bar,baz'|reshape -d, -r:1 -c:1-2
+.Bd -literal -offset indent
+  3
+baz
+.Ed
+.Ed
+
+.Ss Unicode symbols are aligned properly:
+.Bd -literal -compact
+printf '%s\\n%s\\n%s\\n' ',a,b,c,d' ',1,2,3,4' ',",",,ß'|reshape -d, -c1 -s3x4
+.Bd -literal -offset indent
+  a,b,c,d
+  1,2,3,4
+",", ,ß,
+.Ed
+.Ed
+
+.Sh DIAGNOSTICS
+
+The double quote character `"` (unicode U+0022) is not a valid delimiter,
+because it is used to enclose raw cell contents that would otherwise be split on another delimiter.
+For example, the input `"foo,bar"` would not be split into two columns even with `-d:","`.
