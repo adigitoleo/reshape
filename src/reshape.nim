@@ -307,7 +307,10 @@ proc validate(key, val: string): string =
         elif val[1] == ' ' or val[1] == 's': parsedVal = " "
     else: parsedVal = val
     if parsedVal == "":
-        raise newException(ArgumentError, "option {key} requires an argument".fmt)
+        raise newException(
+            ArgumentError,
+            "option {key} requires an argument (use `-{key}=<arg>` or `-{key}:<arg>`)".fmt
+        )
     return parsedVal
 
 
