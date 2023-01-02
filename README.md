@@ -49,11 +49,14 @@ This behaviour is inherited from Nim's [parseopt][parseopt] module.
 
 - [BSD's rs command](https://man.netbsd.org/rs.1)
 - [transposer](https://github.com/keithhamilton/transposer)
+- [GNU datamash](https://www.gnu.org/software/datamash/)
 - [Some ideas for transposing files using awk](https://stackoverflow.com/questions/1729824/an-efficient-way-to-transpose-a-file-in-bash)
 
 ## TODO
 
 - More high-level tests (test examples from manual page?)
 - extract/generate help proc text from the mdoc source?
+- documentation for `--skip{rows,cols}=1-2-3` (start-step-stop) syntax
+- better upfront error handling
 
 [parseopt]: https://nim-lang.org/docs/parseopt.html
