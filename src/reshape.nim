@@ -36,6 +36,8 @@ Options:
 -s,--shape <RxC>        reshape TABLE into R rows and C columns, applied last
 -c,--skipcols <c1,...>  skip columns <c1,...> in TABLE; use a dash for ranges
 -r,--skiprows <r1,...>  skip rows <r1,...> in TABLE; use a dash for ranges
+-x,--ordercols <c1,...> reorder columns as <c1,...>; use a dash for ranges
+-z,--orderrows <r1,...> reorder rows as <r1,...>; use a dash for ranges
 -o,--out <file>         write output to <file> instead of standard output
 
 Operands:
@@ -45,11 +47,12 @@ Operands:
 Reshape and transform delimited tabular text. When using `--transpose`,
 "rows" and "columns" for other options refer to the table before transposing.
 The default delimiter is a tab, i.e. `\t`. Reshaping with `--shape` is always
-applied after `--skip{rows,cols}`, `--unique` and `--transpose`. For short options,
-option arguments must be separated from the flag by a colon or equals sign,
-e.g. `-d:,`. Multi-byte delimiters such as unicode characters are not supported.
-Tab and space delimiters can be specified with `-d:'\t'` and `-d:'\s'` respectively.
-Empty columns are propagated without warning. See reshape(1) for examples."""
+applied after `--{skip,order}{rows,cols}`, `--unique` and `--transpose`. For
+short options, option arguments must be separated from the flag by a colon
+or equals sign, e.g. `-d:,`. Multi-byte delimiters such as unicode characters
+are not supported.  Tab and space delimiters can be specified with `-d:'\t'`
+and `-d:'\s'` respectively.  Empty columns are propagated without warning. See
+reshape(1) for examples."""
     quit(QuitSuccess)
 
 
@@ -65,6 +68,8 @@ type Opts = tuple[
     newShape: Shape,
     skipCols: seq[int],
     skipRows: seq[int],
+    orderCols: seq[int],
+    orderRows: seq[int],
 ]
 
 type ArgumentError* = object of CatchableError
@@ -240,6 +245,24 @@ proc readTable*(input: Stream, delimiter: char, skipRows, skipCols: seq[int] = @
     return table
 
 
+func reorder*(table: seq[seq[string]], orderRows, orderCols: seq[int] = @[]): seq[seq[string]] =
+    ## Reorder rows or columns of `table` according to `orderRows` and `orderCols`.
+    ## Assumes that each row of `table` has an equal number of cells.
+    ## Raises an `IndexDefect` if any new row/column positions fall outside the table size
+    if len(table) == 0: return table
+    let rowIndices = if len(orderRows) == 0: toSeq(countup(0, len(table) - 1)) else: orderRows
+    let colIndices = if len(orderCols) == 0: toSeq(countup(0, len(table[0]) - 1)) else: orderCols
+    if len(rowIndices) != len(table):
+        raise newException(ValueError, "new row order must exclusively specify all row positions")
+    if len(colIndices) != len(table[0]):
+        raise newException(ValueError, "new column order must exclusively specify all column positions")
+    var newTable = newSeqWith(len(table), newSeq[string](len(table[0])))
+    for r, rowIndex in rowIndices.pairs:
+        for c, colIndex in colIndices.pairs:
+            newTable[r][c] = table[rowIndex][colIndex]
+    return newTable
+
+
 func transpose*(table: seq[seq[string]]): seq[seq[string]] =
     ## Returns a transposed copy of `table`.
     ## Assumes that each row of `table` has an equal number of cells.
@@ -349,9 +372,7 @@ func validateSkips(key: string, val: string): seq[int] =
             let stepDashPos = s.find({'-'}, dashPos + 2)
             var step, stop: int
             if stepDashPos == len(s) - 1:
-                raise newException(
-                    ArgumentError, "must include endpoint of skipped range"
-                )
+                raise newException(ArgumentError, "must include endpoint of skipped range")
             if stepDashPos > 0:
                 step = parseInt(s[dashPos + 1 ..< stepDashPos])
                 stop = parseInt(s[stepDashPos + 1 .. ^1])
@@ -369,6 +390,38 @@ func validateSkips(key: string, val: string): seq[int] =
         raise newException(
             ArgumentError, "indices for skipped rows/columns must be positive"
         )
+    # Indices start from zero internally.
+    return parsedInput.map(proc(x: int): int = x - 1)
+
+
+func validateOrder(key: string, val: string): seq[int] =
+    var input = validate(key, val).split(',')
+    var parsedInput: seq[int]
+    for s in input:
+        let dashPos = s.find({'-'})
+        if dashPos == 0:
+            raise newException(
+                ArgumentError, "indices for reordered rows/columns must be positive"
+            )
+        if dashPos == len(s) - 1:
+            raise newException(ArgumentError, "must include endpoint of reordered range")
+        if dashPos > 0:
+            if s.find({'-'}, dashPos + 1) != -1:
+                raise newException(ArgumentError, "cannot specify step in row/column ordering")
+            if dashPos == len(s) - 1:
+                raise newException(ArgumentError, "must include endpoint of range")
+            let start = parseInt(s[0 ..< dashPos])
+            let stop = parseInt(s[dashPos + 1 .. ^1])
+            if start > stop:
+                parsedInput.insert(toSeq(countdown(start, stop)))
+            parsedInput.insert(toSeq(countup(start, stop)))
+        else:
+            parsedInput.add(parseInt(s))
+    if any(parsedInput, proc(x: int): bool = x < 1):
+        raise newException(
+            ArgumentError, "indices for skipped rows/columns must be positive"
+        )
+    # Indices start from zero internally.
     return parsedInput.map(proc(x: int): int = x - 1)
 
 
@@ -404,6 +457,8 @@ proc parseOpts*(cmdline = ""): Opts =
                 of "shape", "s": opts.newShape = validateShape(key, val)
                 of "skipcols", "c": opts.skipCols = validateSkips(key, val)
                 of "skiprows", "r": opts.skipRows = validateSkips(key, val)
+                of "ordercols", "x": opts.orderCols = validateOrder(key, val)
+                of "orderrows", "z": opts.orderRows = validateOrder(key, val)
                 else:
                     if kind == cmdLongOption:
                         raise newException(ArgumentError, "invalid option '--{key}'".fmt)
@@ -431,7 +486,10 @@ proc main() =
     )
     close input
 
-    var newTable = if opts.deduplicate: deduplicate(table) else: table
+    var newTable = if len(opts.orderRows) > 0 or len(opts.orderCols) > 0:
+        reorder(table, opts.orderRows, opts.orderCols)
+    else: table
+    newTable = if opts.deduplicate: deduplicate(newTable) else: newTable
     newTable = if opts.transpose: transpose(newTable) else: newTable
     if opts.newShape.rows > 0 and opts.newShape.cols > 0:
         newTable = reshape(newTable, opts.newShape)

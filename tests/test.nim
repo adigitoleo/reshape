@@ -103,6 +103,38 @@ suite "Command line parsing":
         expect ArgumentError: discard parseOpts("-r:1--1-1")
         expect ArgumentError: discard parseOpts("-r:1-1--1")
         expect ArgumentError: discard parseOpts("-r:1-1-")
+    test "ordercols":
+        check emptyOpts.orderCols == newSeq[int]()
+        expect ArgumentError: discard parseOpts("-x")
+        check parseOpts("-x:3,2,1").orderCols == @[2, 1, 0]
+        check parseOpts("--ordercols 3,2,1").orderCols == @[2, 1, 0]
+        expect ValueError: discard parseOpts("--ordercols 1.2,3.4")
+        check parseOpts("-x:1").orderCols == @[0]
+        check parseOpts("-x:1-1").orderCols == @[0]
+        check parseOpts("-x:3-1").orderCols == @[2, 1, 0]
+        expect ArgumentError: discard parseOpts("-x:-1")
+        expect ArgumentError: discard parseOpts("-x:1-")
+        expect ArgumentError: discard parseOpts("-x:0")
+        expect ArgumentError: discard parseOpts("-x:-1-1")
+        expect ArgumentError: discard parseOpts("-x:1--1")
+        expect ArgumentError: discard parseOpts("-x:1-1-1")
+        expect ArgumentError: discard parseOpts("-x:1-1-")
+    test "orderrows":
+        check emptyOpts.orderRows == newSeq[int]()
+        expect ArgumentError: discard parseOpts("-z")
+        check parseOpts("-z:3,2,1").orderRows == @[2, 1, 0]
+        check parseOpts("--orderrows 3,2,1").orderRows == @[2, 1, 0]
+        expect ValueError: discard parseOpts("--orderrows 1.2,3.4")
+        check parseOpts("-z:1").orderRows == @[0]
+        check parseOpts("-z:1-1").orderRows == @[0]
+        check parseOpts("-z:3-1").orderRows == @[2, 1, 0]
+        expect ArgumentError: discard parseOpts("-z:-1")
+        expect ArgumentError: discard parseOpts("-z:1-")
+        expect ArgumentError: discard parseOpts("-z:0")
+        expect ArgumentError: discard parseOpts("-z:-1-1")
+        expect ArgumentError: discard parseOpts("-z:1--1")
+        expect ArgumentError: discard parseOpts("-z:1-1-1")
+        expect ArgumentError: discard parseOpts("-z:1-1-")
 
 
 suite "Table shape parsing":
@@ -278,6 +310,62 @@ suite "Row and column skipping":
         input.setPosition(0)
         table = readTable(input, ' ', skipRows = @[0, 1, 2, 3], skipCols = @[1])
         check table == newSeq[seq[string]]()
+
+        close input
+
+
+suite "Row and column reordering":
+    test "tabTable3x3":
+        let input = newStringStream(tabTable3x3)
+        var table = reorder(readTable(input, '\t'), @[2, 1, 0])
+        check table == @[@["\"\t1\"", "\"2\t\"", "\"3\t3\""], @["0.1", "0.2", "0.3"], @["a", "b", "c"]]
+        input.setPosition(0)
+        table = reorder(readTable(input, '\t'), @[], @[2, 1, 0])
+        check table == @[@["c", "b", "a"], @["0.3", "0.2", "0.1"], @["\"3\t3\"", "\"2\t\"", "\"\t1\""]]
+        input.setPosition(0)
+        table = reorder(readTable(input, '\t'), @[2, 1, 0], @[0, 2, 1])
+        check table == @[@["\"\t1\"", "\"3\t3\"", "\"2\t\""], @["0.1", "0.3", "0.2"], @["a", "c", "b"]]
+        input.setPosition(0)
+        table = reorder(readTable(input, '\t'), @[0, 2, 1], @[2, 1, 0])
+        check table == @[
+            @["c", "b", "a"],
+            @["\"3\t3\"", "\"2\t\"", "\"\t1\""],
+            @["0.3", "0.2", "0.1"],
+        ]
+
+        close input
+
+    test "malformedCommaTable2x3":
+        let input = newStringStream(malformedCommaTable2x3)
+        var table = reorder(readTable(input, ','))
+        check table == @[@["ä", "¿", "©"], @["1\", \"2", "3\"", ""]]
+        input.setPosition(0)
+        table = reorder(readTable(input, ','), @[], @[2, 1, 0])
+        check table == @[@["©", "¿", "ä"], @["", "3\"", "1\", \"2"]]
+        input.setPosition(0)
+        expect ValueError: discard reorder(readTable(input, ','), @[3, 2, 1, 0], @[])
+
+        close input
+
+    test "malformedSpaceTable4x4":
+        let input = newStringStream(malformedSpaceTable4x4)
+        var table = reorder(readTable(input, ' '))
+        check table == @[
+            @["", "a", "b", "c\" \""],
+            @["", "", "", ""],
+            @["", "10", "20", "30"],
+            @["", "1", "2", ""]
+        ]
+        input.setPosition(0)
+        table = reorder(readTable(input, ' '), @[3, 2, 1, 0], @[3, 2, 1, 0])
+        check table == @[
+            @["", "2", "1", ""],
+            @["30", "20", "10", ""],
+            @["", "", "", ""],
+            @["c\" \"", "b", "a", ""],
+        ]
+        input.setPosition(0)
+        expect IndexDefect: discard reorder(readTable(input, ' '), @[], @[0, 1, 2, 5])
 
         close input
 
