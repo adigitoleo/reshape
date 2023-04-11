@@ -28,15 +28,19 @@ The manual page in the `doc` folder should also be copied into the appropriate m
 
 ## Build
 
+Building reshape requires a Nim compiler (version 1.4.8 or later).
+
 Release build: `nim c -d:release src/reshape.nim`
 
 Debug build: `nim c src/reshape.nim`
 
 ## Test
 
+The test suite requires [unittest2](https://github.com/status-im/nim-unittest2).
+
 Run `nimble test` in the source code root directory.
 
-Linux CI (latest release): [![builds.sr.ht status](https://builds.sr.ht/~adigitoleo/reshape.svg?search=release)](https://builds.sr.ht/~adigitoleo/reshape?search=release)
+Linux CI (dev build): [![builds.sr.ht status](https://builds.sr.ht/~adigitoleo/reshape.svg)](https://builds.sr.ht/~adigitoleo/reshape)
 
 ## Use
 
@@ -44,6 +48,12 @@ Run with the `--help` option if built, or check the `printHelp` proc in the code
 Note that short options must not be separated from their arguments by a space.
 Use `:` or `=` instead, or append the argument to the option flag directly.
 This behaviour is inherited from Nim's [parseopt][parseopt] module.
+
+## Contribute
+
+Please submit patches or suggestions to the [project mailing list](https://lists.sr.ht/~adigitoleo/reshape-devel).
+Patches should be submitted against the HEAD of the `dev` branch on SourceHut.
+**Pull Requests on the GitHub mirror are not monitored.**
 
 ## Similar solutions
 
