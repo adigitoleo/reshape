@@ -32,7 +32,7 @@ task release, "Create release commit and tag":
     try:
         exec "test \"$(git status --porcelain)\" = 'M  {name}.nimble'".fmt
     except OSError:
-        echo "Aborted: should (only) have modified (and commited) nimble file."
+        echo "Aborted: should (only) have modified (and added) nimble file."
         quit(1)
     echo "Creating release commit..."
     exec "git commit -m'release: Version {version}'".fmt
