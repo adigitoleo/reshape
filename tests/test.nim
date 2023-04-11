@@ -24,6 +24,7 @@ const malformedSpaceTable4x4 = """
  1 2 """
 const malformedCommaTable101x3 = "a, b, c\n" & repeat("foo\n", 100)
 const malformedCommaTable102x3 = malformedCommaTable101x3 & "foo\n"
+const airportTable = readFile("tests/airports_2023_part.csv")
 
 
 proc readLines(file: File): seq[string] =
@@ -209,6 +210,15 @@ suite "Table shape parsing":
         require atEnd(input)
 
         check readLines(log.file)[^1] == "WARN encountered malformed rows: {badRowString}.".fmt
+        close input
+
+    test "airportTable":
+        info("starting airportTable test")
+        let input = newStringStream(airportTable)
+        check readShape(input, ',', warnings = true) == (10000, 18)
+        require atEnd(input)
+
+        check readLines(log.file)[^1] == "INFO starting airportTable test"
         close input
 
     close log.file

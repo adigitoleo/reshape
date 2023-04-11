@@ -113,7 +113,7 @@ func splitCells(row: string, delimiter: char): seq[string] =
         maybeDelimiterIndex = -1
         prevDelimiterIndex = -1
 
-    while start < row.high:
+    while start <= row.high:
         maybeDelimiterIndex = row.find(delimiter, start = start)
         start = maybeDelimiterIndex + 1
         if maybeDelimiterIndex == -1: break
