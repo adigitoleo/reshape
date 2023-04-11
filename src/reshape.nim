@@ -106,34 +106,27 @@ func splitCells(row: string, delimiterIndices: seq[int]): seq[string] =
 
 func splitCells(row: string, delimiter: char): seq[string] =
     ## Splits row on delimiter, ignoring delimiters in quoted cells (double quotes only).
-    ## Leadaing or trailing delimiters result in corresponding empty cells.
+    ## Leading or trailing delimiters result in corresponding empty cells.
     var
         start: int
         delimiterIndices: seq[int]
-        delimiterIndex = -1
-        prevQuoteIndex = -1
-        nextQuoteIndex = -1
-        prevClosingQuoteIndex = -1
+        maybeDelimiterIndex = -1
+        prevDelimiterIndex = -1
 
     while start < row.high:
-        delimiterIndex = row.find(delimiter, start = start)
-        start = delimiterIndex + 1
-        if delimiterIndex == -1: break
-        elif delimiterIndex == 0: delimiterIndices.add(0)
+        maybeDelimiterIndex = row.find(delimiter, start = start)
+        start = maybeDelimiterIndex + 1
+        if maybeDelimiterIndex == -1: break
+        elif maybeDelimiterIndex == 0: delimiterIndices.add(0); prevDelimiterIndex = 0
+        elif row[prevDelimiterIndex + 1 .. maybeDelimiterIndex].count('"') mod 2 == 0:
+            delimiterIndices.add(maybeDelimiterIndex)
+            prevDelimiterIndex = maybeDelimiterIndex
         else:
-            prevQuoteIndex = row.rfind(
-                '"',
-                start = prevClosingQuoteIndex + 1,
-                last = delimiterIndex,
-            )
-            if prevQuoteIndex != -1:
-                nextQuoteIndex = row.find('"', start = delimiterIndex)
-                if nextQuoteIndex != -1:
-                    prevClosingQuoteIndex = nextQuoteIndex
-                else:
-                    delimiterIndices.add(delimiterIndex)
+            var nextQuoteIndex = row.find('"', start = maybeDelimiterIndex)
+            if nextQuoteIndex != -1:
+                start = nextQuoteIndex
             else:
-                delimiterIndices.add(delimiterIndex)
+                delimiterIndices.add(maybeDelimiterIndex)
     return splitCells(row, delimiterIndices)
 
 
