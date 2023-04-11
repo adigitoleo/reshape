@@ -1,3 +1,4 @@
+# vim: ft=config
 import strformat
 
 version = "0.4.1"
@@ -6,6 +7,7 @@ description = "Reshape a delimited text file"
 license = "0BSD"
 
 requires "nim >= 1.4.8"
+requires "unittest2"  # https://github.com/status-im/nim-unittest2
 
 srcdir = "src"
 bindir = "build/bin"
