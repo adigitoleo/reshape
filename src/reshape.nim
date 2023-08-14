@@ -195,8 +195,8 @@ func toSlices(s: seq[int]): seq[Slice[int]] =
     return slices
 
 
-proc readTable*(input: Stream, delimiter: char, skipRows, skipCols: seq[int] = @[]):
-    seq[seq[string]] =
+proc readTable*(input: Stream, delimiter: char, skipRows: seq[int] = @[], skipCols: seq[int] = @[]): seq[
+        seq[string]] =
     ## Reads delimited tabular data from `input` and returns a sequence of rows.
     ## Rows are sequences of cells (strings). Quoted delimiters are skipped.
     ## Raises a `ValueError` if the quote character `"` is used as a delimiter.
@@ -238,7 +238,8 @@ proc readTable*(input: Stream, delimiter: char, skipRows, skipCols: seq[int] = @
     return table
 
 
-func reorder*(table: seq[seq[string]], orderRows, orderCols: seq[int] = @[]): seq[seq[string]] =
+func reorder*(table: seq[seq[string]], orderRows: seq[int] = @[], orderCols: seq[int] = @[]): seq[
+        seq[string]] =
     ## Reorder rows or columns of `table` according to `orderRows` and `orderCols`.
     ## Assumes that each row of `table` has an equal number of cells.
     ## Raises an `IndexDefect` if any new row/column positions fall outside the table size
