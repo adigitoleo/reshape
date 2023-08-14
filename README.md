@@ -68,5 +68,7 @@ Patches should be submitted against the HEAD of the `dev` branch on SourceHut.
 - extract/generate help proc text from the mdoc source?
 - documentation for `--skip{rows,cols}=1-2-3` (start-step-stop) syntax
 - better upfront error handling
+- fix: bad rows warning prints last row nr twice in some cases, e.g. `reshape
+  -d',' -i` of [this file](https://github.com/Patol75/PyDRex/blob/main/src/pydrex/data/thirdparty/Kaminski2001_GBMshear.scsv)
 
 [parseopt]: https://nim-lang.org/docs/parseopt.html
