@@ -51,7 +51,7 @@ This behaviour is inherited from Nim's [parseopt][parseopt] module.
 
 ## Contribute
 
-Please submit patches or suggestions to the [project mailing list](https://lists.sr.ht/~adigitoleo/reshape-devel).
+Please submit patches or suggestions to my [public inbox](https://lists.sr.ht/~adigitoleo/public-inbox).
 Patches should be submitted against the HEAD of the `dev` branch on SourceHut.
 **Pull Requests on the GitHub mirror are not monitored.**
 
