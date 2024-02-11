@@ -70,5 +70,6 @@ Patches should be submitted against the HEAD of the `dev` branch on SourceHut.
 - better upfront error handling
 - fix: bad rows warning prints last row nr twice in some cases, e.g. `reshape
   -d',' -i` of [this file](https://github.com/Patol75/PyDRex/blob/main/src/pydrex/data/thirdparty/Kaminski2001_GBMshear.scsv)
+- profile and improve performance scaling for large files
 
 [parseopt]: https://nim-lang.org/docs/parseopt.html
